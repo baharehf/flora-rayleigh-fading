@@ -26,6 +26,9 @@ namespace flora {
 
 class LoRaAnalogModel : public ScalarAnalogModelBase
 {
+  protected:
+    // Rayleigh Fading
+    mutable bool Rayleigh;
   public:
     const W getBackgroundNoisePower(const LoRaBandListening *listening) const;
     virtual std::ostream& printToStream(std::ostream& stream, int level, int evFlags = 0) const override;

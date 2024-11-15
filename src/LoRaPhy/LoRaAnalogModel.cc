@@ -97,7 +97,17 @@ W LoRaAnalogModel::computeReceptionPower(const IRadio *receiverRadio, const ITra
 //    const Quaternion receptionAntennaDirection = transmissionDirection - arrival->getStartOrientation();
     double transmitterAntennaGain = computeAntennaGain(transmission->getTransmitterAntennaGain(), transmission->getStartPosition(), arrival->getStartPosition(), transmission->getStartOrientation());
     double receiverAntennaGain = computeAntennaGain(receiverRadio->getAntenna()->getGain().get(), arrival->getStartPosition(), transmission->getStartPosition(), arrival->getStartOrientation());
-    double pathLoss = radioMedium->getPathLoss()->computePathLoss(transmission, arrival);
+    Rayleigh = par("Rayleigh");
+    double z=1;
+
+    // Rayleigh Fading
+    if(Rayleigh)
+    {
+        double x = normal(0, 1);
+        double y = normal(0, 1);
+        z = sqrt(x * x + y * y);
+    }
+    double pathLoss = radioMedium->getPathLoss()->computePathLoss(transmission, arrival)* z;
     double obstacleLoss = radioMedium->getObstacleLoss() ? radioMedium->getObstacleLoss()->computeObstacleLoss(narrowbandSignalAnalogModel->getCenterFrequency(), transmission->getStartPosition(), receptionStartPosition) : 1;
     W transmissionPower = scalarSignalAnalogModel->getPower();
     return transmissionPower * std::min(1.0, transmitterAntennaGain * receiverAntennaGain * pathLoss * obstacleLoss);

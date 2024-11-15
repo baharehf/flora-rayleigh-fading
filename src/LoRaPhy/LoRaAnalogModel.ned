@@ -28,4 +28,5 @@ module LoRaAnalogModel like IAnalogModel
         bool ignorePartialInterference = default(false);
         @display("i=block/tunnel");
         @class(LoRaAnalogModel);
+        bool Rayleigh = default(false);
 }
