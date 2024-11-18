@@ -97,11 +97,11 @@ W LoRaAnalogModel::computeReceptionPower(const IRadio *receiverRadio, const ITra
 //    const Quaternion receptionAntennaDirection = transmissionDirection - arrival->getStartOrientation();
     double transmitterAntennaGain = computeAntennaGain(transmission->getTransmitterAntennaGain(), transmission->getStartPosition(), arrival->getStartPosition(), transmission->getStartOrientation());
     double receiverAntennaGain = computeAntennaGain(receiverRadio->getAntenna()->getGain().get(), arrival->getStartPosition(), transmission->getStartPosition(), arrival->getStartOrientation());
-    Rayleigh = par("Rayleigh");
+    bool rayleighEnabled = par("Rayleigh");
     double z=1;
 
     // Rayleigh Fading
-    if(Rayleigh)
+    if(rayleighEnabled == true)
     {
         double x = normal(0, 1);
         double y = normal(0, 1);
