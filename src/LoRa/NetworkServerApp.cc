@@ -175,6 +175,15 @@ bool NetworkServerApp::isPacketProcessed(const Ptr<const LoRaMacFrame> &pkt)
     return false;
 }
 
+std::map<L3Address, int> addressToNodeIndex;
+int getNodeIndex(const L3Address& address) {
+    static int nextIndex = 0;
+    if (addressToNodeIndex.find(address) == addressToNodeIndex.end()) {
+        addressToNodeIndex[address] = nextIndex++;
+    }
+    return addressToNodeIndex[address];
+}
+
 void NetworkServerApp::updateKnownNodes(Packet* pkt)
 {
     const auto & frame = pkt->peekAtFront<LoRaMacFrame>();
@@ -206,8 +215,14 @@ void NetworkServerApp::updateKnownNodes(Packet* pkt)
         newNode.historyAllRSSI->record(frame->getRSSI());
         newNode.receivedSeqNumber = new cOutVector;
         newNode.receivedSeqNumber->setName("Received Sequence number");
+        //newNode.calculatedSNRmargin = new cOutVector;
+        //newNode.calculatedSNRmargin->setName("Calculated SNRmargin in ADR");
+
         newNode.calculatedSNRmargin = new cOutVector;
-        newNode.calculatedSNRmargin->setName("Calculated SNRmargin in ADR");
+        int nodeIndex = getNodeIndex(frame->getTransmitterAddress());
+        std::string vectorName = "Calculated SNRmargin in ADR for Node " + std::to_string(nodeIndex);
+        newNode.calculatedSNRmargin->setName(vectorName.c_str());
+
         knownNodes.push_back(newNode);
     }
 }
@@ -334,6 +349,10 @@ void NetworkServerApp::evaluateADR(Packet* pkt, L3Address pickedGateway, double 
                 {
                     SNRm = *max_element(knownNodes[i].adrListSNIR.begin(), knownNodes[i].adrListSNIR.end());
                 }
+                if(adrMethod == "min")
+                {
+                    SNRm = *min_element(knownNodes[i].adrListSNIR.begin(), knownNodes[i].adrListSNIR.end());
+                }
                 if(adrMethod == "avg")
                 {
                     double totalSNR = 0;
@@ -369,6 +388,7 @@ void NetworkServerApp::evaluateADR(Packet* pkt, L3Address pickedGateway, double 
 
             SNRmargin = SNRm - requiredSNR - adrDeviceMargin;
             knownNodes[nodeIndex].calculatedSNRmargin->record(SNRmargin);
+
             int Nstep = round(SNRmargin/3);
             LoRaOptions newOptions;
 
