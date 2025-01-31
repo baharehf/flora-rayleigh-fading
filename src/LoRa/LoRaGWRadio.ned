@@ -73,14 +73,16 @@ module LoRaGWRadio extends FlatRadioBase
         bandwidth = default(0.25 MHz);
 
         // 802.15.4-2006 (page 28)
-        *.bitrate = default(250 kbps);
+        //*.bitrate = default(250 kbps);
+        double bitrate @unit(bps) = default(250 kbps);
 
         // PHY Header, 802.15.4-2006 (page 43)
         // 4 octets Preamble
         // 1 octet SFD
         // 7 bit Frame length
         // 1 bit Reserved
-        *.headerBitLength = (4*8 + 1*8 + 7 + 1) * 1 b;
+        //*.headerBitLength = (4*8 + 1*8 + 7 + 1) * 1 b;
+        double headerBitLength @unit(b) = default((4*8 + 1*8 + 7 + 1) * 1 b);
 
         // RSSI sensitivity (ATmega256RFR2, page 566)
         receiver.energyDetection = default(-90dBm);
