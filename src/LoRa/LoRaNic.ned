@@ -21,7 +21,7 @@ module LoRaNic extends WirelessInterface
 {
     parameters:
         @display("i=block/ifcard");
-        *.interfaceTableModule = default(absPath(this.interfaceTableModule));        
+        interfaceTableModule = default(absPath("^.interfaceTable"));       
         radio.typename = default("LoRaRadio");
         radio.antenna.mobilityModule = "^.^.^.mobility";
         radio.transmitter.typename = "LoRaTransmitter";
