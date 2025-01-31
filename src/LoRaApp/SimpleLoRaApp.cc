@@ -74,6 +74,7 @@ void SimpleLoRaApp::initialize(int stage)
 //        loRaUseHeader = par("initialUseHeader");
         loRaRadio->loRaUseHeader = par("initialUseHeader");
         evaluateADRinNode = par("evaluateADRinNode");
+        EV << "Initializing SF Vector and TP Vector" << endl;
         sfVector.setName("SF Vector");
         tpVector.setName("TP Vector");
     }
@@ -218,8 +219,8 @@ void SimpleLoRaApp::sendJoinRequest()
 
     sfVector.record(getSF());
     tpVector.record(getTP());
-    EV << "Wysylam pakiet z TP: " << getTP() << endl;
-    EV << "Wysylam pakiet z SF: " << getSF() << endl;
+    EV << "Recording TP: " << getTP() << endl;
+    EV << "Recording SF: " << getSF() << endl;
     pktRequest->insertAtBack(payload);
     send(pktRequest, "socketOut");
     if(evaluateADRinNode)

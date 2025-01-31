@@ -364,6 +364,7 @@ void NetworkServerApp::evaluateADR(Packet* pkt, L3Address pickedGateway, double 
                     }
                     SNRm = totalSNR/numberOfFields;
                 }
+                EV << "[MSDebug] SNRm value is: " << SNRm << endl;
 
             }
 
