@@ -74,7 +74,6 @@ void SimpleLoRaApp::initialize(int stage)
 //        loRaUseHeader = par("initialUseHeader");
         loRaRadio->loRaUseHeader = par("initialUseHeader");
         evaluateADRinNode = par("evaluateADRinNode");
-        EV << "Initializing SF Vector and TP Vector" << endl;
         sfVector.setName("SF Vector");
         tpVector.setName("TP Vector");
     }

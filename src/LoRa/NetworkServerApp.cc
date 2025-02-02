@@ -175,6 +175,7 @@ bool NetworkServerApp::isPacketProcessed(const Ptr<const LoRaMacFrame> &pkt)
     return false;
 }
 
+/*
 std::map<L3Address, int> addressToNodeIndex;
 int getNodeIndex(const L3Address& address) {
     static int nextIndex = 0;
@@ -183,6 +184,7 @@ int getNodeIndex(const L3Address& address) {
     }
     return addressToNodeIndex[address];
 }
+*/
 
 void NetworkServerApp::updateKnownNodes(Packet* pkt)
 {
@@ -215,13 +217,11 @@ void NetworkServerApp::updateKnownNodes(Packet* pkt)
         newNode.historyAllRSSI->record(frame->getRSSI());
         newNode.receivedSeqNumber = new cOutVector;
         newNode.receivedSeqNumber->setName("Received Sequence number");
-        //newNode.calculatedSNRmargin = new cOutVector;
-        //newNode.calculatedSNRmargin->setName("Calculated SNRmargin in ADR");
-
         newNode.calculatedSNRmargin = new cOutVector;
-        int nodeIndex = getNodeIndex(frame->getTransmitterAddress());
-        std::string vectorName = "Calculated SNRmargin in ADR for Node " + std::to_string(nodeIndex);
-        newNode.calculatedSNRmargin->setName(vectorName.c_str());
+        newNode.calculatedSNRmargin->setName("Calculated SNRmargin in ADR");
+        //int nodeIndex = getNodeIndex(frame->getTransmitterAddress());
+        //std::string vectorName = "Calculated SNRmargin in ADR for Node " + std::to_string(nodeIndex);
+        //newNode.calculatedSNRmargin->setName(vectorName.c_str());
 
         knownNodes.push_back(newNode);
     }

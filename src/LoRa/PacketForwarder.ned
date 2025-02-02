@@ -26,7 +26,6 @@ simple PacketForwarder like IApp
     string destAddresses = default(""); // list of IP addresses, separated by spaces ("": don't send)
     string localAddress = default("");
     int destPort;
-    int indexNumber;
 
     gates:
         output socketOut @labels(UdpControlInfo/up);
