@@ -103,6 +103,7 @@ void NetworkServerApp::finish()
         delete knownNodes[i].historyAllRSSI;
         delete knownNodes[i].receivedSeqNumber;
         delete knownNodes[i].calculatedSNRmargin;
+        delete knownNodes[i].SNRmVector;
         recordScalar("Send ADR for node", knownNodes[i].numberOfSentADRPackets);
     }
     for (std::map<int,int>::iterator it=numReceivedPerNode.begin(); it != numReceivedPerNode.end(); ++it)
@@ -175,7 +176,7 @@ bool NetworkServerApp::isPacketProcessed(const Ptr<const LoRaMacFrame> &pkt)
     return false;
 }
 
-/*
+
 std::map<L3Address, int> addressToNodeIndex;
 int getNodeIndex(const L3Address& address) {
     static int nextIndex = 0;
@@ -184,7 +185,7 @@ int getNodeIndex(const L3Address& address) {
     }
     return addressToNodeIndex[address];
 }
-*/
+
 
 void NetworkServerApp::updateKnownNodes(Packet* pkt)
 {
@@ -219,6 +220,17 @@ void NetworkServerApp::updateKnownNodes(Packet* pkt)
         newNode.receivedSeqNumber->setName("Received Sequence number");
         newNode.calculatedSNRmargin = new cOutVector;
         newNode.calculatedSNRmargin->setName("Calculated SNRmargin in ADR");
+        //newNode.snrMarginVector = new cOutVector;
+        //newNode.snrMarginVector->setName("SNRm per Node");
+        newNode.SNRmVector = new cOutVector;
+        //std::string vectorName = "SNRm for Node " + std::to_string(newNode.srcAddr.getInt());
+        int nodeIndex = getNodeIndex(frame->getTransmitterAddress());
+        std::string vectorName = "SNRm for Node " + std::to_string(nodeIndex);
+        newNode.SNRmVector->setName(vectorName.c_str());
+
+        //newNode.snrMarginVector = new cOutVector(std::string("SNRm for Node ") + std::to_string(newNode.srcAddr));
+        //newNode.snrMarginVector->setName("SNRm_Vector");
+
         //int nodeIndex = getNodeIndex(frame->getTransmitterAddress());
         //std::string vectorName = "Calculated SNRmargin in ADR for Node " + std::to_string(nodeIndex);
         //newNode.calculatedSNRmargin->setName(vectorName.c_str());
@@ -339,7 +351,8 @@ void NetworkServerApp::evaluateADR(Packet* pkt, L3Address pickedGateway, double 
             knownNodes[i].receivedSeqNumber->record(frame->getSequenceNumber());
             if(knownNodes[i].adrListSNIR.size() == 20) knownNodes[i].adrListSNIR.pop_front();
             knownNodes[i].framesFromLastADRCommand++;
-
+            EV << "Recording SNRm value: " << SNRm << " for node " << i << endl;
+            knownNodes[i].SNRmVector->record(SNRm);
             if(knownNodes[i].framesFromLastADRCommand == 20 || sendADRAckRep == true)
             {
                 nodeIndex = i;
@@ -364,7 +377,7 @@ void NetworkServerApp::evaluateADR(Packet* pkt, L3Address pickedGateway, double 
                     }
                     SNRm = totalSNR/numberOfFields;
                 }
-                EV << "[MSDebug] SNRm value is: " << SNRm << endl;
+                //EV << "[MSDebug] SNRm value is: " << SNRm << endl;
 
             }
 

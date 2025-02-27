@@ -44,6 +44,7 @@ public:
     cOutVector *historyAllRSSI;
     cOutVector *receivedSeqNumber;
     cOutVector *calculatedSNRmargin;
+    cOutVector* SNRmVector;
 };
 
 class knownGW
