@@ -26,6 +26,8 @@
 #include "inet/networklayer/common/L3Tools.h"
 #include "inet/networklayer/ipv4/Ipv4Header_m.h"
 
+#include <omnetpp.h>
+
 namespace flora {
 
 Define_Module(NetworkServerApp);
@@ -324,6 +326,33 @@ void NetworkServerApp::processScheduledPacket(cMessage* selfMsg)
     receivedPackets.erase(receivedPackets.begin()+packetNumber);
 }
 
+double calculatePercentileFromHistogram(const omnetpp::cHistogram& histogram, double percentile) {
+    std::vector<double> data;
+
+    for (int i = 0; i < histogram.getNumBins(); ++i) {
+        double binStart = histogram.getBinEdge(i);
+        double binEnd = histogram.getBinEdge(i + 1);
+        long count = histogram.getBinValue(i);
+        double binValue = (binStart + binEnd) / 2.0;
+
+        for (long j = 0; j < count; ++j) {
+            data.push_back(binValue);
+        }
+    }
+
+    if (data.empty()) {
+        EV << "Warning: Histogram is empty. Returning default value.\n";
+        return 0.0;
+    }
+
+    std::sort(data.begin(), data.end());
+    int index = static_cast<int>(ceil(percentile / 100.0 * data.size())) - 1;
+    index = std::max(0, std::min(index, (int)data.size() - 1));
+
+    return data[index];
+}
+
+
 void NetworkServerApp::evaluateADR(Packet* pkt, L3Address pickedGateway, double SNIRinGW, double RSSIinGW)
 {
     bool sendADR = false;
@@ -376,6 +405,14 @@ void NetworkServerApp::evaluateADR(Packet* pkt, L3Address pickedGateway, double 
                         numberOfFields++;
                     }
                     SNRm = totalSNR/numberOfFields;
+                }
+                if(adrMethod == "percentile")
+                {
+                    for (std::list<double>::iterator it=knownNodes[i].adrListSNIR.begin(); it != knownNodes[i].adrListSNIR.end(); ++it)
+                    {
+                        knownNodes[i].snirHistogram.collect(*it);
+                    }
+                    SNRm = calculatePercentileFromHistogram(knownNodes[i].snirHistogram, 2.5);
                 }
                 //EV << "[MSDebug] SNRm value is: " << SNRm << endl;
 

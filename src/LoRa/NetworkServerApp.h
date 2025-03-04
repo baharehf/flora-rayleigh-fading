@@ -45,6 +45,7 @@ public:
     cOutVector *receivedSeqNumber;
     cOutVector *calculatedSNRmargin;
     cOutVector* SNRmVector;
+    cHistogram snirHistogram;
 };
 
 class knownGW
