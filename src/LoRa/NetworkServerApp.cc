@@ -107,6 +107,12 @@ void NetworkServerApp::finish()
         delete knownNodes[i].calculatedSNRmargin;
         delete knownNodes[i].SNRmVector;
         recordScalar("Send ADR for node", knownNodes[i].numberOfSentADRPackets);
+        // Recording SNR for each node as a Scalar
+        for(auto snrm : knownNodes[i].historySNRm)
+        {
+            std::string recordName = "SNRm for Node " + std::to_string(knownNodes[i].nodeNumber);
+            recordScalar(recordName.c_str(), snrm);
+        }
     }
     for (std::map<int,int>::iterator it=numReceivedPerNode.begin(); it != numReceivedPerNode.end(); ++it)
     {
@@ -357,7 +363,7 @@ void NetworkServerApp::evaluateADR(Packet* pkt, L3Address pickedGateway, double 
 {
     bool sendADR = false;
     bool sendADRAckRep = false;
-    double SNRm; //needed for ADR
+     double SNRm; //needed for ADR
     int nodeIndex;
 
     pkt->trimFront();
@@ -381,7 +387,6 @@ void NetworkServerApp::evaluateADR(Packet* pkt, L3Address pickedGateway, double 
             if(knownNodes[i].adrListSNIR.size() == 20) knownNodes[i].adrListSNIR.pop_front();
             knownNodes[i].framesFromLastADRCommand++;
             EV << "Recording SNRm value: " << SNRm << " for node " << i << endl;
-            knownNodes[i].SNRmVector->record(SNRm);
             if(knownNodes[i].framesFromLastADRCommand == 20 || sendADRAckRep == true)
             {
                 nodeIndex = i;
@@ -415,7 +420,9 @@ void NetworkServerApp::evaluateADR(Packet* pkt, L3Address pickedGateway, double 
                     SNRm = calculatePercentileFromHistogram(knownNodes[i].snirHistogram, 2.5);
                 }
                 //EV << "[MSDebug] SNRm value is: " << SNRm << endl;
-
+                knownNodes[i].SNRmVector->record(SNRm);     // Record SNRm as a vector
+                //knownNodes[i].historySNRm.push_back(SNRm);  // Record SNRm as a scalar
+                knownNodes[i].nodeNumber = frame->getTransmitterAddress().getInt(); // Set node number
             }
 
         }

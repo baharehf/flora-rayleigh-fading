@@ -44,8 +44,10 @@ public:
     cOutVector *historyAllRSSI;
     cOutVector *receivedSeqNumber;
     cOutVector *calculatedSNRmargin;
-    cOutVector* SNRmVector;
+    cOutVector *SNRmVector;
     cHistogram snirHistogram;
+    std::vector<double> historySNRm; // Container to store SNRm values
+    int nodeNumber = -1; // Variable to store the node number
 };
 
 class knownGW
