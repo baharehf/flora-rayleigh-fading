@@ -28,6 +28,7 @@ simple SimpleLoRaApp like IApp
         int numberOfPacketsToSend = default(1);
         volatile double timeToFirstPacket @unit(s) = default(10s);
         volatile double timeToNextPacket @unit(s) = default(10s);
+        volatile int initialLoRaTPIndex;
         double initialLoRaTP @unit(dBm) = default(14dBm);
         double initialLoRaCF @unit(Hz) = default(868MHz);
         int initialLoRaSF = default(12);
@@ -36,6 +37,7 @@ simple SimpleLoRaApp like IApp
         bool initialUseHeader = default(true);
         bool evaluateADRinNode = default(false);
         int dataSize @unit(B) = default(10B);
+        bool NODE_setTP14 = default(false);
     gates:
         input socketIn @labels(LoRaAppPacket/up);
         output socketOut @labels(LoRaAppPacket/down);        

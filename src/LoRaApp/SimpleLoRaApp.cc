@@ -181,6 +181,7 @@ bool SimpleLoRaApp::handleOperationStage(LifecycleOperation *operation, IDoneCal
 
 void SimpleLoRaApp::sendJoinRequest()
 {
+    NODE_setTP14 = par("NODE_setTP14");
     auto pktRequest = new Packet("DataFrame");
     pktRequest->setKind(DATA);
 
@@ -216,7 +217,10 @@ void SimpleLoRaApp::sendJoinRequest()
     cInfo->setLoRaCR(loRaCR);
     pktRequest->setControlInfo(cInfo);*/
 
-
+    sfVector.record(getSF());
+    tpVector.record(getTP());
+    EV << "Recording TP: " << getTP() << endl;
+    EV << "Recording SF: " << getSF() << endl;
     pktRequest->insertAtBack(payload);
     send(pktRequest, "socketOut");
     if(evaluateADRinNode)
@@ -227,12 +231,12 @@ void SimpleLoRaApp::sendJoinRequest()
         {
             ADR_ACK_CNT = 0;
             increaseSFIfPossible();
+            if(NODE_setTP14)
+            {
+                setTP(14);
+            }
         }
     }
-    sfVector.record(getSF());
-    tpVector.record(getTP());
-    EV << "Recording TP: " << getTP() << endl;
-    EV << "Recording SF: " << getSF() << endl;
     emit(LoRa_AppPacketSent, getSF());
 }
 

@@ -84,6 +84,7 @@ class SimpleLoRaApp : public cSimpleModule, public ILifecycle
         int ADR_ACK_DELAY = 32; //32;
         bool sendNextPacketWithADRACKReq = false;
         void increaseSFIfPossible();
+        bool NODE_setTP14;
 
     public:
         SimpleLoRaApp() {}
