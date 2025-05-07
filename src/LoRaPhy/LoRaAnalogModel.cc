@@ -107,9 +107,13 @@ W LoRaAnalogModel::computeReceptionPower(const IRadio *receiverRadio, const ITra
         double y = normal(0, 1);
         z = sqrt(x * x + y * y);
     }
+    EV << "Transmission: " << transmission << endl;
+    EV << "Arrival: " << arrival << endl;
     double pathLoss = radioMedium->getPathLoss()->computePathLoss(transmission, arrival)* z;
     double obstacleLoss = radioMedium->getObstacleLoss() ? radioMedium->getObstacleLoss()->computeObstacleLoss(narrowbandSignalAnalogModel->getCenterFrequency(), transmission->getStartPosition(), receptionStartPosition) : 1;
     W transmissionPower = scalarSignalAnalogModel->getPower();
+    EV << "Path Loss: " << pathLoss << endl;
+    EV << "Obstacle Loss: " << obstacleLoss << endl;
     return transmissionPower * std::min(1.0, transmitterAntennaGain * receiverAntennaGain * pathLoss * obstacleLoss);
 }
 
