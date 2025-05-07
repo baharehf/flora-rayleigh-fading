@@ -28,6 +28,7 @@ simple NetworkServerApp like IApp
 
     string adrMethod = default("max");
     double adrDeviceMargin = default(15);
+    bool NS_increaseSF = default(false);
 
     gates:
     output socketOut @labels(UdpControlInfo/up);

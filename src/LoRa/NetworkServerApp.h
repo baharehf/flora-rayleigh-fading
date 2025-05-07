@@ -95,6 +95,7 @@ class NetworkServerApp : public cSimpleModule, cListener
     void evaluateADR(Packet *pkt, L3Address pickedGateway, double SNIRinGW, double RSSIinGW);
     void receiveSignal(cComponent *source, simsignal_t signalID, intval_t value, cObject *details) override;
     bool evaluateADRinServer;
+    bool NS_increaseSF;
 
     cHistogram receivedRSSI;
   public:

@@ -217,10 +217,16 @@ void NetworkServerApp::updateKnownNodes(Packet* pkt)
         newNode.lastSeqNoProcessed = frame->getSequenceNumber();
         newNode.framesFromLastADRCommand = 0;
         newNode.numberOfSentADRPackets = 0;
-        newNode.historyAllSNIR = new cOutVector;
-        newNode.historyAllSNIR->setName("Vector of SNIR per node");
+        //newNode.historyAllSNIR = new cOutVector;
+        //newNode.historyAllSNIR->setName("Vector of SNIR per node");
         //newNode.historyAllSNIR->record(pkt->getSNIR());
+        //newNode.historyAllSNIR->record(math::fraction2dB(frame->getSNIR()));
+        int nodeIndex = getNodeIndex(frame->getTransmitterAddress());
+        newNode.historyAllSNIR = new cOutVector;
+        std::string snirVectorName = "SNIR_GW for Node " + std::to_string(nodeIndex);
+        newNode.historyAllSNIR->setName(snirVectorName.c_str());
         newNode.historyAllSNIR->record(math::fraction2dB(frame->getSNIR()));
+
         newNode.historyAllRSSI = new cOutVector;
         newNode.historyAllRSSI->setName("Vector of RSSI per node");
         newNode.historyAllRSSI->record(frame->getRSSI());
@@ -228,11 +234,13 @@ void NetworkServerApp::updateKnownNodes(Packet* pkt)
         newNode.receivedSeqNumber->setName("Received Sequence number");
         newNode.calculatedSNRmargin = new cOutVector;
         newNode.calculatedSNRmargin->setName("Calculated SNRmargin in ADR");
+        //std::string snrmarginName = "SNRmargin for Node " + std::to_string(nodeIndex);
+        //newNode.calculatedSNRmargin->setName(snrmarginName.c_str());
         //newNode.snrMarginVector = new cOutVector;
         //newNode.snrMarginVector->setName("SNRm per Node");
         newNode.SNRmVector = new cOutVector;
         //std::string vectorName = "SNRm for Node " + std::to_string(newNode.srcAddr.getInt());
-        int nodeIndex = getNodeIndex(frame->getTransmitterAddress());
+       //nt nodeIndex = getNodeIndex(frame->getTransmitterAddress());
         std::string vectorName = "SNRm for Node " + std::to_string(nodeIndex);
         newNode.SNRmVector->setName(vectorName.c_str());
 
@@ -315,6 +323,15 @@ void NetworkServerApp::processScheduledPacket(cMessage* selfMsg)
                     pickedGateway = std::get<0>(receivedPackets[i].possibleGateways[j]);
                 }
             }
+            // Record SNIR and RSSI for this node regardless of ADR settings
+//            for (auto& node : knownNodes) {
+//                if (node.srcAddr == frame->getTransmitterAddress()) {
+//                    node.historyAllSNIR->record(SNIRinGW);
+//                    node.historyAllRSSI->record(RSSIinGW);
+//                    node.receivedSeqNumber->record(frame->getSequenceNumber());
+//                    break;
+//                }
+//            }
         }
     }
     emit(LoRa_ServerPacketReceived, true);
@@ -363,7 +380,7 @@ void NetworkServerApp::evaluateADR(Packet* pkt, L3Address pickedGateway, double 
 {
     bool sendADR = false;
     bool sendADRAckRep = false;
-     double SNRm; //needed for ADR
+    double SNRm; //needed for ADR
     int nodeIndex;
 
     pkt->trimFront();
@@ -437,6 +454,7 @@ void NetworkServerApp::evaluateADR(Packet* pkt, L3Address pickedGateway, double 
         {
             double SNRmargin;
             double requiredSNR;
+            NS_increaseSF = par("NS_increaseSF");
             if(frame->getLoRaSF() == 7) requiredSNR = -7.5;
             if(frame->getLoRaSF() == 8) requiredSNR = -10;
             if(frame->getLoRaSF() == 9) requiredSNR = -12.5;
@@ -474,6 +492,18 @@ void NetworkServerApp::evaluateADR(Packet* pkt, L3Address pickedGateway, double 
                 Nstep++;
             }
             if(calculatedPowerdBm > 14) calculatedPowerdBm = 14;
+
+            //If TP is already at maximum and Nstep is still negative, INCREASE SF
+            if(NS_increaseSF)
+            {
+                if (Nstep < 0 && calculatedPowerdBm == 14)
+                {
+                    while (Nstep < 0 && calculatedSF < 12) {
+                        calculatedSF++;
+                        Nstep++;
+                    }
+                }
+            }
 
             newOptions.setLoRaSF(calculatedSF);
             newOptions.setLoRaTP(calculatedPowerdBm);
