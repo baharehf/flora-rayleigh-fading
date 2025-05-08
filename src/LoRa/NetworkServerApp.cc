@@ -382,7 +382,7 @@ void NetworkServerApp::evaluateADR(Packet* pkt, L3Address pickedGateway, double 
     bool sendADRAckRep = false;
     double SNRm; //needed for ADR
     int nodeIndex;
-
+    NS_increaseSF = par("NS_increaseSF").boolValue();
     pkt->trimFront();
     auto frame = pkt->removeAtFront<LoRaMacFrame>();
 
@@ -454,7 +454,7 @@ void NetworkServerApp::evaluateADR(Packet* pkt, L3Address pickedGateway, double 
         {
             double SNRmargin;
             double requiredSNR;
-            NS_increaseSF = par("NS_increaseSF");
+
             if(frame->getLoRaSF() == 7) requiredSNR = -7.5;
             if(frame->getLoRaSF() == 8) requiredSNR = -10;
             if(frame->getLoRaSF() == 9) requiredSNR = -12.5;

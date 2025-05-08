@@ -181,7 +181,7 @@ bool SimpleLoRaApp::handleOperationStage(LifecycleOperation *operation, IDoneCal
 
 void SimpleLoRaApp::sendJoinRequest()
 {
-    NODE_setTP14 = par("NODE_setTP14");
+    NODE_setTP14 = par("NODE_setTP14").boolValue();
     auto pktRequest = new Packet("DataFrame");
     pktRequest->setKind(DATA);
 
