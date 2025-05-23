@@ -31,6 +31,7 @@ class LoRaLogNormalShadowing : public FreeSpacePathLoss
     m d0;
     double gamma;
     double sigma;
+    double B;
 
   protected:
     virtual void initialize(int stage) override;
